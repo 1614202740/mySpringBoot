@@ -3,3 +3,6 @@ server:
 student:
   name: Max
   age: 19
+spring:
+  profiles:
+    active: dev
