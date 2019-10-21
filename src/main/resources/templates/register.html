@@ -1,0 +1,182 @@
+<html>
+<head>
+    <title>新用户注册</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<div class="container">
+    <div class="col-md-6 col-md-offset-3">
+        <div class="alert alert-info alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert"
+                    aria-hidden="true">&times;</button>
+            请您填写以下信息完成基本注册
+        </div>
+        <span id="register-span" style="color: red"></span>
+        <form id="register" method="post" action="/doRegister">
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <span id="userName-ok" style="color: green"></span>
+            <div class="input-group col-md-11">
+                <input id="username" name="username" class="form-control"  placeholder="请输入用户名" type="text"
+                onblur="checkUserName()">
+            </div>
+            <span id="username-span" style="color: red"></span>
+        </div>
+
+        <div class="form-group">
+            <label for="password">密码</label>
+            <span id="password-ok" style="color: green"></span>
+            <div class="input-group col-md-11">
+
+                <input id="password" name="password" class="form-control" placeholder="请输入密码" onblur="checkPassword()" type="password">
+
+            </div>
+            <span id="password-span" style="color: red"></span>
+        </div>
+        <div class="form-group">
+            <label for="passwordConfirm">确认密码</label>
+            <span id="passwordConfirm-ok" style="color: green"></span>
+            <div class="input-group col-md-11">
+
+                <input id="passwordConfirm" name="passwordConfirm" class="form-control" placeholder="请再次输入密码" onblur="checkPasswordConfirm()" type="password">
+
+            </div>
+            <span id="passwordConfirm-span" style="color: red"></span>
+        </div>
+            <div class="form-group">
+                <label for="note">个性签名</label>
+                <span id="note-ok" style="color: green"></span>
+                <div class="input-group col-md-11">
+
+                    <input id="note" name="note" class="form-control" placeholder="随便写点什么吧" onblur="checkNote()" maxlength="512" type="text">
+
+                </div>
+                <span id="note-span" style="color: red"></span>
+            </div>
+        <div class="form-group col-md-11">
+            <input class="btn btn-primary col-md-5" onclick="checkRegister()" name="register_submit" id="register_submit" value="立&nbsp;&nbsp;即&nbsp;&nbsp;注&nbsp;&nbsp;册" type="button">
+            <input value="重&nbsp;&nbsp;置&nbsp;&nbsp;内&nbsp;&nbsp;容" id="reset" class=" btn btn-danger col-md-5 col-md-offset-2" type="reset">
+        </div>
+
+        <div class="form-group col-md-11">
+
+        </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    //用户名标志位
+    var userNameFlag = false;
+    function checkUserName() {
+        var username = $("#username").val();
+        username = username.replace(/^\s+|\s+$/g,"");
+        if (username == ""){
+            $("#username-span").text("用户名不能为空");
+            $("#userName-ok").text("");
+            userNameFlag = false;
+        }
+        if (!/^[\u4e00-\u9fa5a-zA-Z0-9]+$/.test(username)){
+            $("#username-span").text("用户名不合法，只能是中英文或者数字");
+            $("#userName-ok").text("");
+            userNameFlag = false;
+        }
+        if (username.length < 3 || username > 20){
+            $("#username-span").text("用户名长度应在3-20位之间");
+            $("#userName-ok").text("");
+        } else {
+            $("#username-span").text("");
+            $.ajax({
+                type: 'post',
+                url: '/checkUserName',
+                data: {"userName": username},
+                dataType: 'json',
+                success:function (data) {
+                    var result = data['result'];
+                    if (result == "success"){
+                        $("#userName-ok").text("√");
+                        userNameFlag = true;
+                    }else {
+                        $("#username-span").text("该用户名已被注册！");
+                        userNameFlag = false;
+                    }
+
+                }
+            });
+        }
+        return userNameFlag;
+    }
+    //密码标志位
+    var passwordFlag1 = false;
+    //重复输入密码标志位
+    var passwordFlag2 = false;
+    function checkPassword() {
+        var password = $("#password").val();
+        password = password.replace(/^\s+|\s+$/g,"");
+        if (password == ""){
+            $("#password-span").text("密码不可为空！");
+            $("#password-ok").text("");
+            passwordFlag1 = false;
+        }else {
+            if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,16}$/.test(password)){
+                $("#password-span").text("密码不合法，密码应在6-16位之间，由字母和数字组成");
+                $("#password-ok").text("");
+                passwordFlag1 = false;
+            }else {
+                $("#password-span").text("");
+                $("#password-ok").text("√");
+                passwordFlag1 = true;
+            }
+        }
+        return passwordFlag1;
+    }
+    function checkPasswordConfirm() {
+        var password = $("#password").val();
+        password = password.replace(/^\s+|\s+$/g,"");
+        var passwordConfirm = $("#passwordConfirm").val();
+        passwordConfirm = passwordConfirm.replace(/^\s+|\s+$/g,"");
+        if (passwordConfirm == ""){
+            $("#passwordConfirm-span").text("不可为空！");
+            $("#passwordConfirm-ok").text("");
+            passwordFlag2 = false;
+        }else {
+            if (passwordConfirm != password){
+                $("#passwordConfirm-span").text("两次密码输入不一致！");
+                $("#passwordConfirm-ok").text("");
+                passwordFlag2 = false;
+            }else {
+                $("#passwordConfirm-ok").text("√");
+                $("#passwordConfirm-span").text("");
+                passwordFlag2 = true;
+            }
+        }
+        return passwordFlag2;
+    }
+    var noteFlag = false;
+    function checkNote() {
+        var note = $("#note").val().replace(/^\s+|\s+$/g,"");
+        if (note == ""){
+            $("#note-span").text("签名必须填写！");
+            $("#note-ok").text("");
+            noteFlag = false;
+        }else {
+            $("#note-ok").text("√");
+            $("#note-span").text("");
+            noteFlag = true
+        }
+        return noteFlag;
+    }
+
+    function checkRegister() {
+        if (checkNote() && checkPassword() && checkPasswordConfirm()){
+            $("#register").submit();
+        }else {
+            $("#register-span").text("请把所有信息填写完整！")
+        }
+    }
+</script>
+</body>

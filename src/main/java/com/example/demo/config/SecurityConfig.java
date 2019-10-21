@@ -26,10 +26,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/**").hasRole("USER")
                 .antMatchers("/admit/**").hasRole("ADMIT")
                 .antMatchers("/view/**").hasRole("USER")
+                .antMatchers("/register/**").permitAll()
+                .antMatchers("/doRegister/**").permitAll()
                 .and()
                 .formLogin().defaultSuccessUrl("/view",true).failureForwardUrl("/login")
                 .and()
-                .logout().logoutSuccessUrl("/");
+                .logout().logoutSuccessUrl("/")
+                .and()
+                .csrf().disable();
     }
 
     @Override
